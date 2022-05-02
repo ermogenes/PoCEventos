@@ -44,6 +44,26 @@ const atualizaCotacao = async () => {
     }
 };
 
+const enviaPedido = async (evt) => {
+    evt.preventDefault();
+    const selectProdutos = document.getElementById("produto-id");
+    const produtoId = selectProdutos.options[selectProdutos.selectedIndex].value;
+    const quantidade = document.getElementById("quantidade").value;
+    const novoPedido = { produtoId, quantidade };
+    const response = await fetch("/api/pedidos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(novoPedido),
+    });
+    if (response.ok) {
+        document.getElementById("mensagem").innerHTML = "Pedido recebido.";
+    } else {
+        document.getElementById("mensagem").innerHTML = "Erro ao enviar pedido.";
+    }
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     await atualizaListaProdutos();
     await atualizaCotacao();
@@ -54,4 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.atualizar-lista-produtos').forEach(el => el.addEventListener('click', () => atualizaListaProdutos()));
     document.querySelectorAll('.atualizar-lista-vendas').forEach(el => el.addEventListener('click', () => atualizaListaVendas()));
     document.querySelectorAll('.atualizar-cotacao').forEach(el => el.addEventListener('click', () => atualizaCotacao()));
+
+    document.getElementById('enviar-pedido').addEventListener('click', (evt) => enviaPedido(evt));
 });

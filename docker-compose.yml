@@ -43,6 +43,7 @@ services:
       context: src/Web
     environment:
       ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
+      KafkaInfra__ksqlDdUrl: 'http://ksqldb:8088'
     ports:
       - 8888:80
 
@@ -358,7 +359,7 @@ services:
       KSQL_KSQL_SERVICE_ID: service01
       KSQL_LISTENERS: http://0.0.0.0:8088
       KSQL_BOOTSTRAP_SERVERS: broker01:9092,broker02:9092,broker03:9092
-      KSQL_SCHEMA_REGISTRY_URL: http://registry:8081
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://registry:8081
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
@@ -385,7 +386,7 @@ services:
     image: confluentinc/cp-ksqldb-cli:6.2.4
     hostname: ksqldb-cli
     container_name: poceventos_ksqldb-cli
-    # docker compose exec ksqldb-cli ksql http://ksqldb:8088
+    # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
     depends_on:
       - ksqldb
     entrypoint: /bin/sh

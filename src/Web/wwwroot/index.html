@@ -21,10 +21,11 @@
           <select id="produto-id">
             <option value="-1">-- selecione --</option>
           </select>
-          <label for="qtd">Quantidade</label>
-          <input type="number" id="qtd" value="1" min="1" />
-          <button id="enviar-pedido">Enviar pedido</button>
+          <label for="quantidade">Quantidade</label>
+          <input type="number" id="quantidade" value="1" min="1" />
+          <button type="button" id="enviar-pedido">Enviar pedido</button>
         </form>
+        <div id="mensagem"></div>
       </section>
       <section class="notificacao">
         <h1>Notificações</h1>
@@ -45,7 +46,7 @@
           </thead>
           <tbody></tbody>
         </table>
-        <button class="atualizar-lista-produtos">Atualizar</button>
+        <button type="button" class="atualizar-lista-produtos">Atualizar</button>
       </section>
       <section class="vendas">
         <h1>Vendas</h1>
@@ -63,7 +64,7 @@
           </thead>
           <tbody></tbody>
         </table>
-        <button class="atualizar-lista-vendas">Atualizar</button>
+        <button type="button" class="atualizar-lista-vendas">Atualizar</button>
       </section>
     </main>
   </body>

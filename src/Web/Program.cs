@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+
+using ksqlDB.RestApi.Client.KSql.RestApi.Http;
+using ksqlDB.RestApi.Client.KSql.RestApi;
+
 using Web.db;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +20,11 @@ builder.Services.AddDbContext<lojaContext>(opt =>
     var serverVersion = ServerVersion.AutoDetect(connectionString);
     opt.UseMySql(connectionString, serverVersion);
 });
+
+var ksqlDbUrl = builder.Configuration.GetSection("KafkaInfra").GetValue<string>("ksqlDdUrl");
+builder.Services.AddScoped<KSqlDbRestApiClient>(s =>
+    new KSqlDbRestApiClient(new HttpClientFactory(new Uri(ksqlDbUrl)))
+);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
@@ -39,12 +48,11 @@ app.MapGet("/api/vendas", ([FromServices] lojaContext _db) =>
 });
 
 app.MapPost("/api/pedidos", (
-    [FromServices] lojaContext _db,
+    [FromServices] KSqlDbRestApiClient _ksql,
     [FromBody] Pedido pedido
 ) =>
 {
-    // Adiciona no tópico "pedido"
-
+    _ksql.InsertIntoAsync<Pedido>(pedido);
     return Results.Created($"/api/vendas", pedido);
 });
 
