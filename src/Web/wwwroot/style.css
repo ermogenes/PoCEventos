@@ -1,0 +1,57 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 5px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: 10px;
+}
+
+main {
+    padding: 5px;
+    flex: 1;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+main>* {
+    padding: 5px;
+    flex: 1;
+    flex-basis: 400px;
+}
+
+section > h1 + * {
+    margin-top: 0.5em;
+}
+
+table {
+    width: 100%;
+}
+
+table, td {
+    border: 1px solid black;
+    padding: 2px;
+    margin-bottom: 1em;;
+}
+
+form {
+    max-width: 300px;
+}
+form > * {
+    display: block;
+    width: 100%;
+    margin: 0.3em;
+}

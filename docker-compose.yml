@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  mysql:
+    container_name: poceventos_mysql
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password --init-file /db-init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3308:3306
+    volumes:
+      - type: bind
+        source: ./data/mysql/PoCEventos-com-dados.sql
+        target: /db-init.sql
+
+  web:
+    container_name: poceventos_web
+    build:
+      context: src/Web
+    environment:
+      ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
+    ports:
+      - 8888:80
