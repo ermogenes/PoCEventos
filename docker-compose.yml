@@ -50,6 +50,14 @@ services:
     ports:
       - 8888:80
 
+  notificacao-worker:
+    container_name: poceventos_notificacao-worker
+    build:
+      context: src/NotificacaoWorker
+    environment:
+      KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
+      KafkaInfra__SignalRHubUrl: 'http://web/notificacaoHub'
+
   zk:
     image: confluentinc/cp-zookeeper:6.2.4
     hostname: zk

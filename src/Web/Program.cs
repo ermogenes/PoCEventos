@@ -55,7 +55,11 @@ app.MapGet("/api/produtos", ([FromServices] lojaContext _db) =>
 
 app.MapGet("/api/vendas", ([FromServices] lojaContext _db) =>
 {
-    return Results.Ok(_db.Venda.Include(v => v.Produto).ToList<Venda>());
+    return Results.Ok(_db.Venda
+        .Include(v => v.Produto)
+        .OrderBy(v => v.Id)
+        .ToList<Venda>()
+    );
 });
 
 app.MapPost("/api/pedidos", (
