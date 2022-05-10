@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 using ksqlDB.RestApi.Client.KSql.RestApi.Http;
 using ksqlDB.RestApi.Client.KSql.RestApi;
 
 using Web.db;
+using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,13 +23,20 @@ builder.Services.AddDbContext<lojaContext>(opt =>
     opt.UseMySql(connectionString, serverVersion);
 });
 
-var ksqlDbUrl = builder.Configuration.GetSection("KafkaInfra").GetValue<string>("ksqlDdUrl");
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
+{
+  opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
+var ksqlDbUrl = builder.Configuration.GetSection("KafkaInfra").GetValue<string>("ksqlDbUrl");
 builder.Services.AddScoped<KSqlDbRestApiClient>(s =>
     new KSqlDbRestApiClient(new HttpClientFactory(new Uri(ksqlDbUrl)))
 );
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -37,6 +46,8 @@ app.UseSwaggerUI();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.MapHub<NotificacaoHub>("/notificacaoHub");
+
 app.MapGet("/api/produtos", ([FromServices] lojaContext _db) =>
 {
     return Results.Ok(_db.Produto.ToList<Produto>());
@@ -44,7 +55,7 @@ app.MapGet("/api/produtos", ([FromServices] lojaContext _db) =>
 
 app.MapGet("/api/vendas", ([FromServices] lojaContext _db) =>
 {
-    return Results.Ok(_db.Venda.ToList<Venda>());
+    return Results.Ok(_db.Venda.Include(v => v.Produto).ToList<Venda>());
 });
 
 app.MapPost("/api/pedidos", (

@@ -30,7 +30,7 @@ const atualizaListaVendas = async () => {
     const listaVendas = document.getElementById("lista-vendas").tBodies[0];
     listaVendas.innerHTML = "";
     Array.from(vendas).forEach(v => {
-        const marcacaoVenda = `<tr><td>${v.id}</td><td>${v.produto_id} {v.produto.descricao}</td><td>${v.precobrl}</td><td>${v.cotacaousd}</td><td>${v.taxabrl}</td><td>${v.totalbrl}</td></tr>`;
+        const marcacaoVenda = `<tr><td>${v.id}</td><td>${v.produtoId} ${v.produto.descricao}</td><td>${v.quantidade}</td><td>${v.precobrl}</td><td>${v.cotacaousd}</td><td>${v.taxabrl}</td><td>${v.totalbrl}</td></tr>`;
         listaVendas.insertAdjacentHTML('beforeend', marcacaoVenda);
     });
 }
@@ -46,6 +46,7 @@ const atualizaCotacao = async () => {
 
 const enviaPedido = async (evt) => {
     evt.preventDefault();
+    const mensagem = document.getElementById("mensagem");
     const selectProdutos = document.getElementById("produto-id");
     const produtoId = selectProdutos.options[selectProdutos.selectedIndex].value;
     const quantidade = document.getElementById("quantidade").value;
@@ -58,10 +59,20 @@ const enviaPedido = async (evt) => {
         body: JSON.stringify(novoPedido),
     });
     if (response.ok) {
-        document.getElementById("mensagem").innerHTML = "Pedido recebido.";
+        mensagem.innerHTML = "Pedido recebido.";
     } else {
-        document.getElementById("mensagem").innerHTML = "Erro ao enviar pedido.";
+        mensagem.innerHTML = "Erro ao enviar pedido.";
     }
+    setInterval(() => {mensagem.innerHTML = ""; }, 2000);
+};
+
+const exibeNotificacao = (origem, mensagem) => {
+    var lista = document.getElementById("notificacoes");
+    lista.insertAdjacentHTML('beforeend', `<div>${origem}: ${mensagem} (${new Date().toLocaleTimeString()})</div>`);
+};
+
+const limpaNotificacao = () => {
+    document.getElementById("notificacoes").innerHTML = "";
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -74,6 +85,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.atualizar-lista-produtos').forEach(el => el.addEventListener('click', () => atualizaListaProdutos()));
     document.querySelectorAll('.atualizar-lista-vendas').forEach(el => el.addEventListener('click', () => atualizaListaVendas()));
     document.querySelectorAll('.atualizar-cotacao').forEach(el => el.addEventListener('click', () => atualizaCotacao()));
+
+    document.getElementById('limpa-notificacao').addEventListener('click', (evt) => limpaNotificacao(evt));
 
     document.getElementById('enviar-pedido').addEventListener('click', (evt) => enviaPedido(evt));
 });
