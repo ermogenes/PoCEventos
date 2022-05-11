@@ -6,4 +6,4 @@ RUN mkdir -p /usr/share/java/jdbc/mysql && curl -LsS https://dev.mysql.com/get/D
 RUN mkdir -p /usr/share/java/jdbc/mssql && curl -LsS https://go.microsoft.com/fwlink/?linkid=2168494 | tar xvz -C /usr/share/java/jdbc/mssql --wildcards '*.jar'
 USER nifi
 
-ENTRYPOINT ["sleep", "infinity"]
+CMD sleep infinity
