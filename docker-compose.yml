@@ -28,7 +28,8 @@ services:
 
   mysql:
     container_name: poceventos_mysql
-    image: mysql
+    hostname: mysql
+    image: mysql:8.0.29
     command: --default-authentication-plugin=mysql_native_password --init-file /db-init.sql
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -42,26 +43,42 @@ services:
 
   web:
     container_name: poceventos_web
+    hostname: web
     build:
       context: src/Web
     environment:
       ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
       KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
+      WAIT_HOSTS: mysql:3306, ksqldb:8088
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     ports:
       - 8888:80
+    depends_on:
+      - mysql
+      - ksqldb
+    restart: on-failure
 
   notificacao-worker:
     container_name: poceventos_notificacao-worker
+    hostname: notificacao-worker
     build:
       context: src/NotificacaoWorker
     environment:
       KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
       KafkaInfra__SignalRHubUrl: 'http://web/notificacaoHub'
+      WAIT_HOSTS: ksqldb:8088, web:80
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
+    depends_on:
+      - ksqldb
+      - web
+    restart: on-failure
 
   zk:
-    image: confluentinc/cp-zookeeper:6.2.4
     hostname: zk
     container_name: poceventos_zk
+    image: confluentinc/cp-zookeeper:6.2.4
     ports:
       - 42181:2181
     environment:
@@ -85,9 +102,10 @@ services:
     restart: on-failure
 
   broker01:
-    image: confluentinc/cp-kafka:6.2.4
-    hostname: broker01
     container_name: poceventos_broker01
+    hostname: broker01
+    build:
+      context: docker/broker
     ports:
       - 49092:9092
     environment:
@@ -103,23 +121,21 @@ services:
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
       KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
+      WAIT_HOSTS: zk:2181
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - broker01-data:/var/lib/kafka/data
       - broker01-secrets:/etc/kafka/secrets
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - zk
     restart: on-failure
 
   broker02:
-    image: confluentinc/cp-kafka:6.2.4
-    hostname: broker02
     container_name: poceventos_broker02
+    hostname: broker02
+    build:
+      context: docker/broker
     ports:
       - 49093:9092
     environment:
@@ -135,23 +151,21 @@ services:
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
       KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
+      WAIT_HOSTS: zk:2181
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - broker02-data:/var/lib/kafka/data
       - broker02-secrets:/etc/kafka/secrets
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - zk
     restart: on-failure
 
   broker03:
-    image: confluentinc/cp-kafka:6.2.4
-    hostname: broker03
     container_name: poceventos_broker03
+    hostname: broker03
+    build:
+      context: docker/broker
     ports:
       - 49094:9092
     environment:
@@ -167,23 +181,20 @@ services:
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
       KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
+      WAIT_HOSTS: zk:2181
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - broker03-data:/var/lib/kafka/data
       - broker03-secrets:/etc/kafka/secrets
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - zk
     restart: on-failure
 
   cmak:
-    image: vimagick/cmak
-    hostname: cmak
     container_name: poceventos_cmak
+    hostname: cmak
+    image: vimagick/cmak
     ports:
       - 49000:9000 # Cluster Zookeeper Hosts: "zk:2181/kafka"
     environment:
@@ -198,9 +209,10 @@ services:
     restart: unless-stopped
 
   registry:
-    image: confluentinc/cp-schema-registry:6.2.4
-    hostname: registry
     container_name: poceventos_registry
+    hostname: registry
+    build:
+      context: docker/registry
     ports:
       - 48081:8081
     environment:
@@ -209,14 +221,11 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://registry:8081
       SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,OPTIONS"
       SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
+      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - registry-secrets:/etc/schema-registry/secrets
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - broker01
       - broker02
@@ -224,9 +233,9 @@ services:
     restart: on-failure
 
   registry-ui:
-    image: landoop/schema-registry-ui:latest
-    hostname: registry-ui
     container_name: poceventos_registry-ui
+    hostname: registry-ui
+    image: landoop/schema-registry-ui:latest
     environment:
       SCHEMAREGISTRY_URL: http://registry:8081 # ui supports just one registry
       PROXY: "true"
@@ -237,9 +246,10 @@ services:
     restart: unless-stopped
 
   restproxy:
-    image: confluentinc/cp-kafka-rest:6.2.4
-    hostname: restproxy
     container_name: poceventos_restproxy
+    hostname: restproxy
+    build:
+      context: docker/restproxy
     ports:
       - 48082:8082
     environment:
@@ -251,12 +261,9 @@ services:
       KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
       KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
       KAFKA_REST_ACKS: all
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
+      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     depends_on:
       - broker01
       - broker02
@@ -265,9 +272,9 @@ services:
     restart: on-failure
 
   kafka-topics-ui:
-    image: landoop/kafka-topics-ui:latest
-    hostname: kafka-topics-ui
     container_name: poceventos_kafka-topics-ui
+    hostname: kafka-topics-ui
+    image: landoop/kafka-topics-ui:latest
     environment:
       KAFKA_REST_PROXY_URL: http://restproxy:8082
       PROXY: "true"
@@ -285,9 +292,10 @@ services:
     restart: unless-stopped
 
   connect:
-    image: confluentinc/cp-kafka-connect:6.2.4
-    hostname: connect
     container_name: poceventos_connect
+    hostname: connect
+    build:
+      context: docker/connect
     ports:
       - 48083:8083
     environment:
@@ -315,28 +323,14 @@ services:
       CONNECT_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
       CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+      KAFKA_REST_ACKS: all
+      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - connect-data:/var/lib/kafka/data
       - connect-secrets:/etc/kafka/secrets
       - connect-kafka-secrets:/etc/kafka-connect/secrets
-    command:
-      - /bin/bash
-      - -c
-      - |
-        echo "---- Installing connectors from Confluent Hub... (/usr/share/confluent-hub-components)"
-        # confluent-hub install --no-prompt castorm/kafka-connect-http:0.8.6
-        # confluent-hub install --no-prompt dariobalinzo/kafka-connect-elasticsearch-source:1.3
-        # confluent-hub install --no-prompt confluentinc/kafka-connect-elasticsearch:11.1.0
-        # confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.6.1
-        # confluent-hub install --no-prompt jcustenborder/kafka-connect-transform-common:0.1.0.54
-        confluent-hub install --no-prompt mdrogalis/voluble:0.3.1
-        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:10.2.1
-        echo "---- Installing JDBC drivers... (/usr/share/java/jdbc ~> /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib)"
-        mkdir -p /usr/share/java/jdbc/mysql && curl -LsS https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-8.0.26.tar.gz | tar xvz -C /usr/share/java/jdbc/mysql --wildcards '*.jar'
-        mkdir -p /usr/share/java/jdbc/mssql && curl -LsS https://go.microsoft.com/fwlink/?linkid=2168494 | tar xvz -C /usr/share/java/jdbc/mssql --wildcards '*.jar'
-        cp -l $$(du -a /usr/share/java/jdbc/ | awk '{print $$2}' | grep .jar) /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - broker01
       - broker02
@@ -345,9 +339,9 @@ services:
     restart: on-failure
 
   connect-ui:
-    image: landoop/kafka-connect-ui:latest
-    hostname: connect-ui
     container_name: poceventos_connect-ui
+    hostname: connect-ui
+    image: landoop/kafka-connect-ui:latest
     ports:
       - 48100:8000
     environment:
@@ -360,9 +354,10 @@ services:
     restart: unless-stopped
 
   ksqldb:
-    image: confluentinc/cp-ksqldb-server:6.2.4
-    hostname: ksqldb
     container_name: poceventos_ksqldb
+    hostname: ksqldb
+    build:
+      context: docker/ksqldb    
     ports:
       - 48088:8088
       - 48283:8083
@@ -377,14 +372,11 @@ services:
       KSQL_KSQL_HEARTBEAT_ENABLE: "true" # /clusterStatus
       KSQL_KSQL_EXTENSION_DIR: /opt/confluent/ksql/extensions
       KSQL_KSQL_CONNECT_URL: http://connect:8083
+      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081, connect:8083
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     volumes:
       - ksqldb-extensions:/opt/confluent/ksql/extensions
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /etc/confluent/docker/run &
-        sleep infinity
     depends_on:
       - broker01
       - broker02
@@ -394,20 +386,25 @@ services:
     restart: on-failure
 
   ksqldb-cli:
-    image: confluentinc/cp-ksqldb-cli:6.2.4
-    hostname: ksqldb-cli
     container_name: poceventos_ksqldb-cli
+    hostname: ksqldb-cli
+    build:
+      context: docker/ksqldb-cli
     # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
+    environment:
+      WAIT_HOSTS: ksqldb:8088
+      WAIT_TIMEOUT: 3600
+      WAIT_HOST_CONNECT_TIMEOUT: 60
     depends_on:
       - ksqldb
-    entrypoint: /bin/sh
     tty: true
     restart: unless-stopped
 
   nifi:
-    image: apache/nifi:latest
-    hostname: nifi
     container_name: poceventos_nifi
+    hostname: nifi
+    build:
+      context: docker/nifi
     ports:
       - 48443:8443
       - 49443:9443
@@ -425,12 +422,4 @@ services:
         - nifi-data:/opt/nifi/nifi-current/
         - nifi-extensions:/opt/nifi/nifi-current/extensions
         - nifi-conf:/opt/nifi/nifi-current/conf
-    command:
-      - /bin/bash
-      - -c
-      - |
-        echo "nameserver 8.8.8.8" >> /etc/resolv.conf &
-        echo "nameserver 8.8.4.4" >> /etc/resolv.conf &
-        /etc/confluent/docker/run &
-        sleep infinity
     restart: always

@@ -60,7 +60,10 @@ using var disposable = _ksql.CreateQueryStream<Notificacao>(fromItemName: "notif
         // Publica no SignalR
         await _hub.InvokeAsync("Notificar", n.origem, n.mensagem);
     },
-        error => { Console.WriteLine($"Exception: {error.Message}"); },
+        error => {
+            Console.WriteLine($"Exception: {error.Message}");
+            Environment.Exit(-1);
+        },
         () => Console.WriteLine("Finalizado.")
     );
 
