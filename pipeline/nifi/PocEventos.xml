@@ -2,17 +2,19 @@
 <template encoding-version="1.3">
     <description></description>
     <groupId>89d5a62b-0180-1000-cd26-db94e46c8f97</groupId>
-    <name>PocEventos</name>
+    <name>PoCEventos</name>
     <snippet>
         <connections>
             <id>00229587-54fc-3aea-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>00229587-54fc-3aea-8a95-51e2af1c7e80</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>c40a8090-d14a-3ca4-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>c40a8090-d14a-3ca4-8802-6f6ebbd8a20a</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -26,18 +28,21 @@
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>c689f149-05b3-3a4b-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>c689f149-05b3-3a4b-9317-c4d3e41a18ac</versionedComponentId>
             </source>
             <zIndex>0</zIndex>
         </connections>
         <connections>
             <id>0a515fcc-d138-3930-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>0a515fcc-d138-3930-8b61-ceef0280060f</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>c689f149-05b3-3a4b-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>c689f149-05b3-3a4b-9317-c4d3e41a18ac</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -51,12 +56,14 @@
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>57618f91-09fe-37bf-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>57618f91-09fe-37bf-a0bc-e2adbb1f50a4</versionedComponentId>
             </source>
             <zIndex>0</zIndex>
         </connections>
         <connections>
             <id>2281ee94-ed25-37ba-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>2281ee94-ed25-37ba-8db2-fca0314793e5</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
@@ -176,12 +183,14 @@
         <connections>
             <id>4483dc3a-6948-3732-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>4483dc3a-6948-3732-9ace-c9cfe36ef56d</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>4d34b36b-cc19-3cac-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>4d34b36b-cc19-3cac-861a-639acc7c3565</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -195,6 +204,7 @@
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>d7383faf-7692-354d-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>d7383faf-7692-354d-8601-4d70177ee613</versionedComponentId>
             </source>
             <zIndex>0</zIndex>
         </connections>
@@ -233,12 +243,14 @@
         <connections>
             <id>5b2a50f4-d51a-3606-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>5b2a50f4-d51a-3606-8e43-a764a86186c2</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>b610bf65-4ca4-3502-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>b610bf65-4ca4-3502-b4c6-a41be8f408dd</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -252,6 +264,7 @@
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>c40a8090-d14a-3ca4-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>c40a8090-d14a-3ca4-8802-6f6ebbd8a20a</versionedComponentId>
             </source>
             <zIndex>0</zIndex>
         </connections>
@@ -290,12 +303,14 @@
         <connections>
             <id>bcca98a9-1448-37ec-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>bcca98a9-1448-37ec-b460-2dd8b2ef69e3</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>57618f91-09fe-37bf-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>57618f91-09fe-37bf-a0bc-e2adbb1f50a4</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -376,12 +391,14 @@
         <connections>
             <id>edbabd6b-06b6-3025-0000-000000000000</id>
             <parentGroupId>e138a906-99ac-3745-0000-000000000000</parentGroupId>
+            <versionedComponentId>edbabd6b-06b6-3025-82ca-e094d2f51ec2</versionedComponentId>
             <backPressureDataSizeThreshold>1 GB</backPressureDataSizeThreshold>
             <backPressureObjectThreshold>10000</backPressureObjectThreshold>
             <destination>
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>d7383faf-7692-354d-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>d7383faf-7692-354d-8601-4d70177ee613</versionedComponentId>
             </destination>
             <flowFileExpiration>0 sec</flowFileExpiration>
             <labelIndex>1</labelIndex>
@@ -395,6 +412,7 @@
                 <groupId>e138a906-99ac-3745-0000-000000000000</groupId>
                 <id>b610bf65-4ca4-3502-0000-000000000000</id>
                 <type>PROCESSOR</type>
+                <versionedComponentId>b610bf65-4ca4-3502-b4c6-a41be8f408dd</versionedComponentId>
             </source>
             <zIndex>0</zIndex>
         </connections>
@@ -1325,12 +1343,12 @@ double precoBRL = record.getAsDouble('precobrl')
 double quantidade = record.getAsDouble('QUANTIDADE')
 double cotacaoUSD = record.getAsDouble('usd')
 
-double ttParcialBRL = precoBRL * quantidade;
-double ttUSD = ttParcialBRL * cotacaoUSD
-double taxa = ttUSD &gt; 50.0 ? 0.6 : 0
+double ttParcialBRL = precoBRL * quantidade
+double limiteUSD = cotacaoUSD * 50.0
+double taxa = ttParcialBRL &gt; limiteUSD ? 0.6 : 0
 
 double taxaBRL = (ttParcialBRL * taxa).round(2)
-double totalBRL = (ttParcialBRL + ttParcialBRL * taxa).round(2)
+double totalBRL = (ttParcialBRL + taxaBRL).round(2)
 
 record.setValue(new RecordField("cotacaousd", RecordFieldType.DOUBLE.getDataType()), cotacaoUSD)
 
@@ -1377,6 +1395,7 @@ return record</value>
                 <x>3128.0</x>
                 <y>1456.0</y>
             </position>
+            <versionedComponentId>4d34b36b-cc19-3cac-861a-639acc7c3565</versionedComponentId>
             <bundle>
                 <artifact>nifi-kafka-2-6-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -1838,6 +1857,7 @@ return record</value>
                 <x>1336.0</x>
                 <y>880.0</y>
             </position>
+            <versionedComponentId>57618f91-09fe-37bf-a0bc-e2adbb1f50a4</versionedComponentId>
             <bundle>
                 <artifact>nifi-jolt-record-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -2420,6 +2440,7 @@ return record</value>
                 <x>2488.0</x>
                 <y>1160.0</y>
             </position>
+            <versionedComponentId>b610bf65-4ca4-3502-b4c6-a41be8f408dd</versionedComponentId>
             <bundle>
                 <artifact>nifi-update-attribute-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -2520,6 +2541,7 @@ return record</value>
                 <x>1920.0</x>
                 <y>1392.0</y>
             </position>
+            <versionedComponentId>c40a8090-d14a-3ca4-8802-6f6ebbd8a20a</versionedComponentId>
             <bundle>
                 <artifact>nifi-standard-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -2706,6 +2728,7 @@ return record</value>
                 <x>1924.97408582023</x>
                 <y>1124.5698843003665</y>
             </position>
+            <versionedComponentId>c689f149-05b3-3a4b-9317-c4d3e41a18ac</versionedComponentId>
             <bundle>
                 <artifact>nifi-standard-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -2886,6 +2909,7 @@ return record</value>
                 <x>3136.0</x>
                 <y>1136.0</y>
             </position>
+            <versionedComponentId>d7383faf-7692-354d-8601-4d70177ee613</versionedComponentId>
             <bundle>
                 <artifact>nifi-standard-nar</artifact>
                 <group>org.apache.nifi</group>
@@ -3570,5 +3594,5 @@ LEFT OUTER JOIN enrichment</value>
             <type>org.apache.nifi.processors.standard.InvokeHTTP</type>
         </processors>
     </snippet>
-    <timestamp>05/10/2022 20:44:43 UTC</timestamp>
+    <timestamp>05/11/2022 13:22:22 UTC</timestamp>
 </template>

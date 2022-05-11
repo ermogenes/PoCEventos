@@ -5,12 +5,12 @@ double precoBRL = record.getAsDouble('precobrl')
 double quantidade = record.getAsDouble('QUANTIDADE')
 double cotacaoUSD = record.getAsDouble('usd')
 
-double ttParcialBRL = precoBRL * quantidade;
-double ttUSD = ttParcialBRL * cotacaoUSD
-double taxa = ttUSD > 50.0 ? 0.6 : 0
+double ttParcialBRL = precoBRL * quantidade
+double limiteUSD = cotacaoUSD * 50.0
+double taxa = ttParcialBRL > limiteUSD ? 0.6 : 0
 
 double taxaBRL = (ttParcialBRL * taxa).round(2)
-double totalBRL = (ttParcialBRL + ttParcialBRL * taxa).round(2)
+double totalBRL = (ttParcialBRL + taxaBRL).round(2)
 
 record.setValue(new RecordField("cotacaousd", RecordFieldType.DOUBLE.getDataType()), cotacaoUSD)
 
