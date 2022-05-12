@@ -38,7 +38,7 @@ docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
 
 Subir um MySQL para desenvolvimento:
 ```
-docker run --name mysql-dev -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8.0.28
+docker run --name mysql-dev -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8.0.29
 ```
 
 # TODO
