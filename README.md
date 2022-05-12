@@ -27,12 +27,12 @@ MySQL na porta 3308, usuário `root` e senha `root`.
 ![](art/mysql-loja-erd.png)
 
 # Passos manuais
-- Usar o `ksqldb-cli` para criar os streams contidos em [`data\ksqldb\PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
+- Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
 ```bash
-docker-compose exec ksqldb-cli ksql http://ksqldb:8088
+docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
 ```
 
-- Carregar o template do nifi contido em [`pipeline\nifi\PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
+- Carregar o template do nifi contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
 
 # Desenvolvimento
 
