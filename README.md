@@ -17,7 +17,7 @@ docker-compose up
 docker-compose exec ksqldb-cli ksql http://ksqldb:8088
 ```
 
-- Carregar o template do nifi contido em [`pipeline\nifi\PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
+- Carregar o template do nifi contido em [`pipeline\nifi\PoCEventos.xml`](pipeline/nifi/PocEventos.xml).
 - Configurar todos os parâmetros nos processadores e controladores com alerta.
 
 # TODO
