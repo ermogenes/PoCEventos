@@ -1,7 +1,7 @@
 # PoCEventos
 ![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
-![ksqlDB](https://img.shields.io/badge/ksqlDB-000?style=for-the-badge&logo=apacherocketmq)
-![Apache Nifi](https://img.shields.io/badge/Apache%20Nifi-%23D42029.svg?style=for-the-badge&logo=drupal&logoColor=white)
+![ksqlDB](https://img.shields.io/badge/ksqlDB-4a4a4a?style=for-the-badge&logo=apacherocketmq)
+![Apache Nifi](https://img.shields.io/badge/Apache%20Nifi-728E9B.svg?style=for-the-badge&logo=drupal&logoColor=white)
 ![Apache Groovy](https://img.shields.io/badge/Apache%20Groovy-4298B8.svg?style=for-the-badge&logo=Apache+Groovy&logoColor=white)
 ![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
 ![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=c-sharp&logoColor=white)
