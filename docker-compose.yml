@@ -194,22 +194,22 @@ services:
       - zk
     restart: on-failure
 
-  cmak:
-    container_name: poceventos_cmak
-    hostname: cmak
-    image: vimagick/cmak
-    ports:
-      - 49000:9000 # Cluster Zookeeper Hosts: "zk:2181/kafka"
-    environment:
-      ZK_HOSTS: zk:2181
-      KAFKA_MANAGER_AUTH_ENABLED: "false"
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-    healthcheck:
-      test: curl -f http://cmak:9000/api/health || exit 1
-    restart: unless-stopped
+  # cmak:
+  #   container_name: poceventos_cmak
+  #   hostname: cmak
+  #   image: vimagick/cmak
+  #   ports:
+  #     - 49000:9000 # Cluster Zookeeper Hosts: "zk:2181/kafka"
+  #   environment:
+  #     ZK_HOSTS: zk:2181
+  #     KAFKA_MANAGER_AUTH_ENABLED: "false"
+  #   depends_on:
+  #     - broker01
+  #     - broker02
+  #     - broker03
+  #   healthcheck:
+  #     test: curl -f http://cmak:9000/api/health || exit 1
+  #   restart: unless-stopped
 
   registry:
     container_name: poceventos_registry
@@ -235,18 +235,18 @@ services:
       - broker03
     restart: on-failure
 
-  registry-ui:
-    container_name: poceventos_registry-ui
-    hostname: registry-ui
-    image: landoop/schema-registry-ui:latest
-    environment:
-      SCHEMAREGISTRY_URL: http://registry:8081 # ui supports just one registry
-      PROXY: "true"
-    ports:
-      - 48001:8000
-    depends_on:
-      - registry
-    restart: unless-stopped
+  # registry-ui:
+  #   container_name: poceventos_registry-ui
+  #   hostname: registry-ui
+  #   image: landoop/schema-registry-ui:latest
+  #   environment:
+  #     SCHEMAREGISTRY_URL: http://registry:8081 # ui supports just one registry
+  #     PROXY: "true"
+  #   ports:
+  #     - 48001:8000
+  #   depends_on:
+  #     - registry
+  #   restart: unless-stopped
 
   restproxy:
     container_name: poceventos_restproxy
@@ -274,25 +274,25 @@ services:
       - registry
     restart: on-failure
 
-  kafka-topics-ui:
-    container_name: poceventos_kafka-topics-ui
-    hostname: kafka-topics-ui
-    image: landoop/kafka-topics-ui:latest
-    environment:
-      KAFKA_REST_PROXY_URL: http://restproxy:8082
-      PROXY: "true"
-      MAX_BYTES: 50000 # 50KB max fetch amount per topic
-      RECORD_POLL_TIMEOUT: 5000 # ms
-      DEBUG_LOGS_ENABLED: "true"
-      LAZY_LOAD_TOPIC_META: "false"
-    ports:
-      - 48000:8000
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-      - restproxy
-    restart: unless-stopped
+  # kafka-topics-ui:
+  #   container_name: poceventos_kafka-topics-ui
+  #   hostname: kafka-topics-ui
+  #   image: landoop/kafka-topics-ui:latest
+  #   environment:
+  #     KAFKA_REST_PROXY_URL: http://restproxy:8082
+  #     PROXY: "true"
+  #     MAX_BYTES: 50000 # 50KB max fetch amount per topic
+  #     RECORD_POLL_TIMEOUT: 5000 # ms
+  #     DEBUG_LOGS_ENABLED: "true"
+  #     LAZY_LOAD_TOPIC_META: "false"
+  #   ports:
+  #     - 48000:8000
+  #   depends_on:
+  #     - broker01
+  #     - broker02
+  #     - broker03
+  #     - restproxy
+  #   restart: unless-stopped
 
   connect:
     container_name: poceventos_connect
@@ -341,20 +341,20 @@ services:
       - registry
     restart: on-failure
 
-  connect-ui:
-    container_name: poceventos_connect-ui
-    hostname: connect-ui
-    image: landoop/kafka-connect-ui:latest
-    ports:
-      - 48100:8000
-    environment:
-      CONNECT_URL: http://connect:8083;connect-group-connect
-      PROXY: "true"
-      KAFKA_TOPICS_UI: "http://localhost:4800"
-      KAFKA_TOPICS_UI_ENABLED: "true"
-    depends_on:
-      - connect
-    restart: unless-stopped
+  # connect-ui:
+  #   container_name: poceventos_connect-ui
+  #   hostname: connect-ui
+  #   image: landoop/kafka-connect-ui:latest
+  #   ports:
+  #     - 48100:8000
+  #   environment:
+  #     CONNECT_URL: http://connect:8083;connect-group-connect
+  #     PROXY: "true"
+  #     KAFKA_TOPICS_UI: "http://localhost:4800"
+  #     KAFKA_TOPICS_UI_ENABLED: "true"
+  #   depends_on:
+  #     - connect
+  #   restart: unless-stopped
 
   ksqldb:
     container_name: poceventos_ksqldb
@@ -391,15 +391,11 @@ services:
   ksqldb-cli:
     container_name: poceventos_ksqldb-cli
     hostname: ksqldb-cli
-    build:
-      context: docker/ksqldb-cli
+    image: confluentinc/cp-ksqldb-cli:6.2.4
     # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
-    environment:
-      WAIT_HOSTS: ksqldb:8088
-      WAIT_TIMEOUT: 3600
-      WAIT_HOST_CONNECT_TIMEOUT: 60
     depends_on:
       - ksqldb
+    entrypoint: /bin/sh
     tty: true
     restart: unless-stopped
 
