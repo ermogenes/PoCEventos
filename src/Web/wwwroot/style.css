@@ -55,3 +55,17 @@ form > * {
     width: 100%;
     margin: 0.3em;
 }
+
+.notificacao-mensagem {
+    animation: fadeOut 5.0s;
+}
+
+@keyframes fadeOut {
+     75% {
+          opacity: 1;
+     }
+
+     100% {
+          opacity: 0.25;
+     }
+}

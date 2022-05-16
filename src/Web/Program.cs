@@ -57,7 +57,8 @@ app.MapGet("/api/vendas", ([FromServices] lojaContext _db) =>
 {
     return Results.Ok(_db.Venda
         .Include(v => v.Produto)
-        .OrderBy(v => v.Id)
+        .OrderByDescending(v => v.Id)
+        .Take(20)
         .ToList<Venda>()
     );
 });

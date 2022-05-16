@@ -67,8 +67,12 @@ const enviaPedido = async (evt) => {
 };
 
 const exibeNotificacao = (origem, mensagem) => {
-    var lista = document.getElementById("notificacoes");
-    lista.insertAdjacentHTML('beforeend', `<div>${origem}: ${mensagem} (${new Date().toLocaleTimeString()})</div>`);
+    const lista = document.getElementById("notificacoes");
+    const notificacao = document.createElement('div');
+    notificacao.innerHTML = `${origem}: ${mensagem} (${new Date().toLocaleTimeString()})`;
+    notificacao.classList.add("notificacao-mensagem");
+    lista.append(notificacao);
+    setTimeout(() => { notificacao.style.display = "none"; }, 5000);
 };
 
 const limpaNotificacao = () => {
