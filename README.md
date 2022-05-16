@@ -24,7 +24,16 @@ Nifi em http://localhost:48443/nifi/.
 
 MySQL na porta 3308, usuário `root` e senha `root`.
 
+```sh
+docker exec -it poceventos_mysql mysql -proot
+```
+
 ![](art/mysql-loja-erd.png)
+
+ksqlDB:
+```sh
+docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
+```
 
 # Passos manuais
 - Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
@@ -33,6 +42,31 @@ docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
 ```
 
 - Carregar o template do nifi contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
+
+# Teste de stress
+
+Instale o [Apache Bench](https://httpd.apache.org/docs/2.4/programs/ab.html):
+
+```sh
+sudo apt install apache2-utils
+```
+
+Crie um arquivo com o conteúdo do POST:
+```sh
+echo '{"produtoId":"8fqupa2mp9o6","quantidade":"1"}' > payload.json
+```
+
+Dispare quantas vezes quiser:
+
+Sintaxe:
+```sh
+ab -n QTD_REQUESTS -c QTD_SIMULTANEA -T application/json -p ARQUIVO_JSON_POST http://URL_SERVICO/api/pedidos
+```
+
+Exemplo:
+```sh
+ab -n 30 -c 3 -T application/json -p payload.json http://localhost:8888/api/pedidos
+```
 
 # Desenvolvimento
 
