@@ -29,6 +29,13 @@
           <label for="quantidade">Quantidade</label>
           <input type="number" id="quantidade" value="1" min="1" />
           <button type="button" id="enviar-pedido">Enviar pedido</button>
+          <div>Aleatório</div>
+          <button type="button" id="enviar-pedido-aleatorio">Enviar 1 pedido aleatório</button>
+          <div>
+            Enviar a cada <input type="number" id="intervalo" value="2" min="0.1" step="0.1" /> s
+            <button type="button" id="iniciar">Iniciar</button>
+            <button type="button" id="parar">Parar</button>
+          </div>
         </form>
         <div id="mensagem"></div>
       </section>
@@ -40,6 +47,8 @@
         <section>
             <span id="cotacao-atual"></span>
             <button class="atualizar-cotacao">Atualizar</button>
+            <input type="checkbox" id="cotacao-auto" checked>
+            <label for="cotacao-auto">Automático</label>
         </section>
         <br>
         <h1>Notificações</h1>
@@ -88,6 +97,8 @@
           <tbody></tbody>
         </table>
         <button type="button" class="atualizar-lista-vendas">Atualizar</button>
+        <input type="checkbox" id="vendas-auto" checked>
+        <label for="vendas-auto">Automático</label>
       </section>
     </main>
   </body>

@@ -69,3 +69,17 @@ form > * {
           opacity: 0.25;
      }
 }
+
+#intervalo {
+    width: 5em;
+}
+
+#mensagem {
+    max-height: 5em;
+    overflow-y: scroll;
+}
+
+#notificacoes {
+    max-height: 10em;
+    overflow-y: scroll;
+}
