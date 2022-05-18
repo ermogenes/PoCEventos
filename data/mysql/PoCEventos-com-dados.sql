@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `loja`.`venda` (
   `produto_id` VARCHAR(12) NOT NULL,
   `quantidade` INT NOT NULL,
   `precobrl` DECIMAL(10,2) NOT NULL,
-  `cotacaousd` DECIMAL(10,2) NOT NULL,
+  `cotacaousd` DECIMAL(10,4) NOT NULL,
   `taxabrl` DECIMAL(10,2) NOT NULL,
   `totalbrl` DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (`id`),
