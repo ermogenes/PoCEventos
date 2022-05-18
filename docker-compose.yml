@@ -388,16 +388,16 @@ services:
       - connect
     restart: on-failure
 
-  ksqldb-cli:
-    container_name: poceventos_ksqldb-cli
-    hostname: ksqldb-cli
-    image: confluentinc/cp-ksqldb-cli:6.2.4
-    # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
-    depends_on:
-      - ksqldb
-    entrypoint: /bin/sh
-    tty: true
-    restart: unless-stopped
+  # ksqldb-cli:
+  #   container_name: poceventos_ksqldb-cli
+  #   hostname: ksqldb-cli
+  #   image: confluentinc/cp-ksqldb-cli:6.2.4
+  #   # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
+  #   depends_on:
+  #     - ksqldb
+  #   entrypoint: /bin/sh
+  #   tty: true
+  #   restart: unless-stopped
 
   nifi:
     container_name: poceventos_nifi
@@ -439,3 +439,12 @@ services:
     #   - nifi-registry-flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
     #   - nifi-registry-database:/opt/nifi-registry/nifi-registry-current/database
     restart: always
+
+  redis:
+    container_name: poceventos_redis
+    hostname: redis
+    image: redis:latest
+    ports:
+      - 46379:6379
+    command: redis-server --save ''
+    restart: on-failure

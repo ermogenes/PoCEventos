@@ -4,6 +4,5 @@ CREATE STREAM pedidos (produtoId VARCHAR, quantidade INTEGER)
 CREATE STREAM notificacoes (origem VARCHAR, mensagem VARCHAR)
   WITH (kafka_topic='notificacao', key_format='kafka', value_format='json', partitions=8, replicas=3);
 
-CREATE TABLE produtos_quantidade AS
-  SELECT produtoid, SUM(quantidade) AS quantidade
-  FROM pedidos GROUP BY produtoid;
+CREATE STREAM cotacoes (cotacaousd DECIMAL(10,4), timestamp TIMESTAMP)
+  WITH (kafka_topic='cotacao', key_format='kafka', value_format='json', partitions=8, replicas=3);

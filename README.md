@@ -32,15 +32,11 @@ docker exec -it poceventos_mysql mysql -proot
 
 ksqlDB:
 ```sh
-docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
+docker exec -it poceventos_ksqldb ksql
 ```
 
 # Passos manuais
 - Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
-```bash
-docker exec -it poceventos_ksqldb-cli ksql http://ksqldb:8088
-```
-
 - Carregar o template do nifi contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
 - Reiniciar todos os controladores.
 - Colocar a senha `root` do MySQL no controlador do pool de conexões.
