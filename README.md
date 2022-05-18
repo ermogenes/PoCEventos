@@ -39,6 +39,15 @@ ksqlDB:
 docker exec -it poceventos_ksqldb ksql
 ```
 
+redis:
+```sh
+docker exec -it poceventos_redis redis-cli
+```
+
+- `keys *` mostra todas as chaves
+- `get cotacao` mostra o valor atual do dólar
+- `ttl cotacao` mostra quantos segundo falta para expirar a cotação atual
+
 # Passos manuais
 - Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
 - Carregar o template do nifi contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
