@@ -46,7 +46,7 @@ docker exec -it poceventos_redis redis-cli
 
 - `keys *` mostra todas as chaves
 - `get cotacao` mostra o valor atual do dólar
-- `ttl cotacao` mostra quantos segundo falta para expirar a cotação atual
+- `ttl cotacao` mostra quantos segundos faltam para expirar a cotação atual
 
 # Passos manuais
 - Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
