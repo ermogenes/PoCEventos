@@ -20,8 +20,10 @@ Aplicação em http://localhost:8888/.
 
 Nifi em http://localhost:48443/nifi/.
 
-![](art/nifi-poceventos-grupos.png.png)
-![](art/nifi-poceventos-cotacao.png.png)
+![](art/nifi-poceventos-grupos.png)
+
+![](art/nifi-poceventos-cotacao.png)
+
 ![](art/nifi-poceventos.png)
 
 MySQL na porta 3308, usuário `root` e senha `root`.
