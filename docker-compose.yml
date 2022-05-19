@@ -20,9 +20,30 @@ volumes:
   connect-secrets:
   connect-kafka-secrets:
   ksqldb-extensions:
-  nifi-data:
-  nifi-extensions:
-  nifi-conf:
+  nifi01-logs:
+  nifi01-conf:
+  nifi01-database-repository:
+  nifi01-flowfile-repository:
+  nifi01-content-repository:
+  nifi01-provenance-repository:
+  nifi01-state:
+  nifi01-extensions:
+  nifi02-logs:
+  nifi02-conf:
+  nifi02-database-repository:
+  nifi02-flowfile-repository:
+  nifi02-content-repository:
+  nifi02-provenance-repository:
+  nifi02-state:
+  nifi02-extensions:
+  nifi03-logs:
+  nifi03-conf:
+  nifi03-database-repository:
+  nifi03-flowfile-repository:
+  nifi03-content-repository:
+  nifi03-provenance-repository:
+  nifi03-state:
+  nifi03-extensions:
   nifi-registry-conf:
   nifi-registry-flow-storage:
   nifi-registry-database:
@@ -52,7 +73,7 @@ services:
     environment:
       ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
       KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
-      WAIT_HOSTS: mysql:3306, ksqldb:8088
+      WAIT_HOSTS: mysql:3306,ksqldb:8088
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
     ports:
@@ -399,9 +420,9 @@ services:
   #   tty: true
   #   restart: unless-stopped
 
-  nifi:
-    container_name: poceventos_nifi
-    hostname: nifi
+  nifi01:
+    container_name: poceventos_nifi01
+    hostname: nifi01
     build:
       context: docker/nifi
     ports:
@@ -413,32 +434,98 @@ services:
     environment:
       NIFI_WEB_HTTP_PORT: 8443
       NIFI_WEB_HTTPS_PORT: 9443
-      # NIFI_CLUSTER_IS_NODE: "true"
-      # NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
-      # NIFI_ZK_CONNECT_STRING: zk:2181
-      # NIFI_ELECTION_MAX_WAIT: "1 min"
+      NIFI_CLUSTER_IS_NODE: "true"
+      NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
+      NIFI_ZK_CONNECT_STRING: zk:2181
+      NIFI_ELECTION_MAX_WAIT: "1 min"
+      NIFI_SENSITIVE_PROPS_KEY: "B876A5432C23456B9876543A45F678"
     volumes:
-      - nifi-data:/opt/nifi/nifi-current
-      - nifi-extensions:/opt/nifi/nifi-current/extensions
-      - nifi-conf:/opt/nifi/nifi-current/conf
+      - nifi01-logs:/opt/nifi/nifi-current/logs
+      - nifi01-conf:/opt/nifi/nifi-current/conf
+      - nifi01-database-repository:/opt/nifi/nifi-current/database_repository
+      - nifi01-flowfile-repository:/opt/nifi/nifi-current/flowfile_repository
+      - nifi01-content-repository:/opt/nifi/nifi-current/content_repository
+      - nifi01-provenance-repository:/opt/nifi/nifi-current/provenance_repository
+      - nifi01-state:/opt/nifi/nifi-current/state
+      - nifi01-extensions:/opt/nifi/nifi-current/extensions
     restart: always
 
-  nifi-registry:
-    container_name: poceventos_nifi-registry
-    hostname: nifi-registry
-    image: apache/nifi-registry:latest
+  nifi02:
+    container_name: poceventos_nifi02
+    hostname: nifi02
+    build:
+      context: docker/nifi
     ports:
-      - 48080:18080
+      - 48543:8443
+      - 49543:9443
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
-      NIFI_REGISTRY_WEB_HTTP_PORT: 18080
-    #   NIFI_REGISTRY_DB_DIR: /opt/nifi-registry/nifi-registry-current/database
-    #   NIFI_REGISTRY_FLOW_PROVIDER: file
-    #   NIFI_REGISTRY_FLOW_STORAGE_DIR: /opt/nifi-registry/nifi-registry-current/flow_storage
-    # volumes:
-    #   - nifi-registry-conf:/opt/nifi-registry/nifi-registry-current/conf
-    #   - nifi-registry-flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
-    #   - nifi-registry-database:/opt/nifi-registry/nifi-registry-current/database
+      NIFI_WEB_HTTP_PORT: 8443
+      NIFI_WEB_HTTPS_PORT: 9443
+      NIFI_CLUSTER_IS_NODE: "true"
+      NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
+      NIFI_ZK_CONNECT_STRING: zk:2181
+      NIFI_ELECTION_MAX_WAIT: "1 min"
+      NIFI_SENSITIVE_PROPS_KEY: "B876A5432C23456B9876543A45F678"
+    volumes:
+      - nifi02-logs:/opt/nifi/nifi-current/logs
+      - nifi02-conf:/opt/nifi/nifi-current/conf
+      - nifi02-database-repository:/opt/nifi/nifi-current/database_repository
+      - nifi02-flowfile-repository:/opt/nifi/nifi-current/flowfile_repository
+      - nifi02-content-repository:/opt/nifi/nifi-current/content_repository
+      - nifi02-provenance-repository:/opt/nifi/nifi-current/provenance_repository
+      - nifi02-state:/opt/nifi/nifi-current/state
+      - nifi02-extensions:/opt/nifi/nifi-current/extensions
     restart: always
+
+  nifi03:
+    container_name: poceventos_nifi03
+    hostname: nifi03
+    build:
+      context: docker/nifi
+    ports:
+      - 48643:8443
+      - 49643:9443
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      NIFI_WEB_HTTP_PORT: 8443
+      NIFI_WEB_HTTPS_PORT: 9443
+      NIFI_CLUSTER_IS_NODE: "true"
+      NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
+      NIFI_ZK_CONNECT_STRING: zk:2181
+      NIFI_ELECTION_MAX_WAIT: "1 min"
+      NIFI_SENSITIVE_PROPS_KEY: "B876A5432C23456B9876543A45F678"
+    volumes:
+      - nifi03-logs:/opt/nifi/nifi-current/logs
+      - nifi03-conf:/opt/nifi/nifi-current/conf
+      - nifi03-database-repository:/opt/nifi/nifi-current/database_repository
+      - nifi03-flowfile-repository:/opt/nifi/nifi-current/flowfile_repository
+      - nifi03-content-repository:/opt/nifi/nifi-current/content_repository
+      - nifi03-provenance-repository:/opt/nifi/nifi-current/provenance_repository
+      - nifi03-state:/opt/nifi/nifi-current/state
+      - nifi03-extensions:/opt/nifi/nifi-current/extensions
+    restart: always
+
+  # nifi-registry:
+  #   container_name: poceventos_nifi-registry
+  #   hostname: nifi-registry
+  #   image: apache/nifi-registry:latest
+  #   ports:
+  #     - 48080:18080
+  #   environment:
+  #     NIFI_REGISTRY_WEB_HTTP_PORT: 18080
+  #   #   NIFI_REGISTRY_DB_DIR: /opt/nifi-registry/nifi-registry-current/database
+  #   #   NIFI_REGISTRY_FLOW_PROVIDER: file
+  #   #   NIFI_REGISTRY_FLOW_STORAGE_DIR: /opt/nifi-registry/nifi-registry-current/flow_storage
+  #   # volumes:
+  #   #   - nifi-registry-conf:/opt/nifi-registry/nifi-registry-current/conf
+  #   #   - nifi-registry-flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+  #   #   - nifi-registry-database:/opt/nifi-registry/nifi-registry-current/database
+  #   restart: always
 
   redis:
     container_name: poceventos_redis
