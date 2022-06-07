@@ -72,15 +72,16 @@ services:
       context: src/Web
     environment:
       ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
-      KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
-      WAIT_HOSTS: mysql:3306,ksqldb:8088
+      dependencies__broker__topic: 'pedido'
+      dependencies__broker__producer__BootstrapServers: 'broker01:9092,broker02:9092,broker03:9092'
+      dependencies__redis: 'redis:6379'
+      WAIT_HOSTS: mysql:3306,redis:6379,broker01:9092,broker02:9092,broker03:9092
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
     ports:
       - 8888:80
     depends_on:
       - mysql
-      - ksqldb
     restart: on-failure
 
   notificacao-worker:

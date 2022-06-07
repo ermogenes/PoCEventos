@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
-using ksqlDB.RestApi.Client.KSql.RestApi.Http;
-using ksqlDB.RestApi.Client.KSql.RestApi;
+using Confluent.Kafka;
+using StackExchange.Redis;
 
 using Web.db;
+using Web.kafka;
 using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,9 +30,21 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
   opt.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-var ksqlDbUrl = builder.Configuration.GetSection("KafkaInfra").GetValue<string>("ksqlDbUrl");
-builder.Services.AddScoped<KSqlDbRestApiClient>(s =>
-    new KSqlDbRestApiClient(new HttpClientFactory(new Uri(ksqlDbUrl)))
+string kafkaServer = builder.Configuration
+    .GetSection("dependencies:broker:producer").GetValue<string>("BootstrapServers");
+
+string pedidoTopic = builder.Configuration
+    .GetSection("dependencies:broker").GetValue<string>("topic");
+
+string redisServer = builder.Configuration
+    .GetSection("dependencies").GetValue<string>("redis");
+
+builder.Services.AddSingleton<KafkaClientHandle>();
+builder.Services.AddSingleton<KafkaDependentProducer<long, string>>();
+builder.Services.AddSingleton<DeliveryHandler>();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(redisServer)
 );
 
 builder.Services.AddSwaggerGen();
@@ -63,12 +77,24 @@ app.MapGet("/api/vendas", ([FromServices] lojaContext _db) =>
     );
 });
 
-app.MapPost("/api/pedidos", (
-    [FromServices] KSqlDbRestApiClient _ksql,
+app.MapPost("/api/pedidos", async (
+    [FromServices] IConnectionMultiplexer _connmux,
+    [FromServices] KafkaDependentProducer<long, string> _producer,
+    [FromServices] DeliveryHandler _delivery,
     [FromBody] Pedido pedido
 ) =>
 {
-    _ksql.InsertIntoAsync<Pedido>(pedido);
+    var redis = _connmux.GetDatabase();
+
+    long id = await redis.StringIncrementAsync("pedidosQtd");
+    string content = JsonSerializer.Serialize(pedido);
+
+    _producer.Produce(
+        pedidoTopic,
+        new Message<long, string> { Key = id, Value = content },
+        _delivery.DeliveryReportHandler
+    );
+
     return Results.Created($"/api/vendas", pedido);
 });
 
