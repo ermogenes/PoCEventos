@@ -28,15 +28,17 @@ public class DeliveryHandler
         {
             case PersistenceStatus.NotPersisted:
                 var txNP = _redis.CreateTransaction();
-                await txNP.StringIncrementAsync("np");
+                long npCount = await txNP.StringIncrementAsync("np");
                 await txNP.StringSetAsync($"np:{key}", value);
                 await txNP.ExecuteAsync();
+                _logger.LogError($"NotPersisted #{npCount}: {key} = {value}");
                 break;
             case PersistenceStatus.PossiblyPersisted:
                 var txPP = _redis.CreateTransaction();
-                await txPP.StringIncrementAsync("pp");
+                long ppCount = await txPP.StringIncrementAsync("pp");
                 await txPP.StringSetAsync($"pp:{key}", value);
                 await txPP.ExecuteAsync();
+                _logger.LogWarning($"PossiblyPersisted #{ppCount}: {key} = {value}");
                 break;
             case PersistenceStatus.Persisted:
                 await _redis.StringIncrementAsync("p");

@@ -1,12 +1,11 @@
 # PoCEventos
 ![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
-![ksqlDB](https://img.shields.io/badge/ksqlDB-4a4a4a?style=for-the-badge&logo=apacherocketmq)
 ![Apache Nifi](https://img.shields.io/badge/Apache%20Nifi-728E9B.svg?style=for-the-badge&logo=drupal&logoColor=white)
-![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 ![Apache Groovy](https://img.shields.io/badge/Apache%20Groovy-4298B8.svg?style=for-the-badge&logo=Apache+Groovy&logoColor=white)
 ![.Net](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
 ![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=c-sharp&logoColor=white)
 ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
 Uma prova de conceitos para um sistema web com event streaming.
@@ -35,11 +34,6 @@ docker exec -it poceventos_mysql mysql -proot
 
 ![](art/mysql-loja-erd.png)
 
-ksqlDB:
-```sh
-docker exec -it poceventos_ksqldb ksql
-```
-
 redis:
 ```sh
 docker exec -it poceventos_redis redis-cli
@@ -50,10 +44,11 @@ docker exec -it poceventos_redis redis-cli
 - `ttl cotacao` mostra quantos segundos faltam para expirar a cotação atual
 
 # Passos manuais
-- Usar o `ksqldb-cli` para criar os streams contidos em [`data/ksqldb/PoCEventos.ksql`](data/ksqldb/PoCEventos.ksql):
-- Carregar o template do nifi contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
-- Reiniciar todos os controladores.
-- Colocar a senha `root` do MySQL no controlador do pool de conexões.
+Configuração do pipeline do Apach Nifi:
+- Carregar o template contido em [`pipeline/nifi/PoCEventos.xml`](pipeline/nifi/PoCEventos.xml).
+- Colocar a senha `root` do MySQL no controlador do pool de conexões com MySQL.
+- Habilitar todos os controladores.
+- Habilitar o flow.
 
 # Teste de stress
 
@@ -88,9 +83,9 @@ docker run --name mysql-dev -p 3307:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8.0.2
 ```
 
 # TODO
-- [ ] Adicionar migrations no ksqldb
 - [ ] Configurar persistência do nifi
 - [ ] Automatizar a criação dos templates e dos parâmetros do nifi na inicialização (ver `nifi import-param-context`)
 - [ ] Conectar o nifi com o nifi-registry
 - [ ] Usar mysql ou git para persistência do nifi-registry
 - [ ] Adicionar testes de infra com [FluentDocker](https://github.com/mariotoffia/FluentDocker)
+- [ ] Criar IaC com Terraform e AWS

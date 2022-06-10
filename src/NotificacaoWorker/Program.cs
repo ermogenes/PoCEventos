@@ -1,16 +1,17 @@
-﻿using ksqlDB.RestApi.Client.KSql.Query.Context;
-using ksqlDB.RestApi.Client.KSql.Linq;
-using ksqlDB.RestApi.Client.KSql.Query.Options;
+﻿using Confluent.Kafka;
 
 using Microsoft.AspNetCore.SignalR.Client;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 Console.WriteLine("Iniciando...");
 
 // Obtém configuração
-KafkaInfra ambiente = new();
+Dependencies deps = new();
 
 using IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((hostingContext, configuration) =>
@@ -28,48 +29,67 @@ using IHost host = Host.CreateDefaultBuilder(args)
 
         IConfigurationRoot configurationRoot = configuration.Build();
 
-        configurationRoot.GetSection(nameof(KafkaInfra)).Bind(ambiente);
+        configurationRoot.GetSection(nameof(Dependencies)).Bind(deps);
     }).Build();
-
-Console.WriteLine($"ksqldb  = {ambiente.ksqlDbUrl}");
-Console.WriteLine($"signalr = {ambiente.SignalRHubUrl}");
-
-// Conexão com KsqlDB
-var options = new KSqlDBContextOptions(ambiente.ksqlDbUrl!)
-{
-    ShouldPluralizeFromItemName = false
-};
-
-await using var _ksql = new KSqlDBContext(options);
 
 // Conexão com SignalR Hub
 var _hub = new HubConnectionBuilder()
-    .WithUrl(ambiente.SignalRHubUrl!)
+    .WithUrl(deps.SignalRHub!.Url!)
     .WithAutomaticReconnect()
     .Build();
 
 await _hub.StartAsync();
 
-// Subscribe no stream do KsqlDB
-using var disposable = _ksql.CreateQueryStream<Notificacao>(fromItemName: "notificacoes")
-    .WithOffsetResetPolicy(AutoOffsetReset.Latest)
-    .Subscribe(async (n) =>
+// Conexão com Kafka
+string brokers = deps.Broker!.Consumer!.BootstrapServers!;
+string topic = deps.Broker!.Topic!;
+
+Console.WriteLine($"brokers  = {brokers}");
+Console.WriteLine($"topic = {topic}");
+
+var config = new ConsumerConfig
+{
+    GroupId = "NotificacaoWorkers",
+    BootstrapServers = brokers,
+    AutoOffsetReset = AutoOffsetReset.Earliest
+};
+
+// Inicia consumidor e se subscreve no tópico
+using (var consumer = new ConsumerBuilder<Ignore, string>(config)
+                            .Build())
+{
+    consumer.Subscribe(topic);
+
+    try
     {
-        Console.WriteLine($"Notificar {n.origem} => {n.mensagem}");
-        
-        // Publica no SignalR
-        await _hub.InvokeAsync("Notificar", n.origem, n.mensagem);
-    },
-        error => {
-            Console.WriteLine($"Exception: {error.Message}");
-            Environment.Exit(-1);
-        },
-        () => Console.WriteLine("Finalizado.")
-    );
+        Console.WriteLine("OK ==> Aguardando notificações a enviar (CTRL+C para finalizar).");
 
-Console.WriteLine("OK ==> Aguardando notificações a enviar (CTRL+C para finalizar).");
+        while (true)
+        {
+            try
+            {
+                var evt = consumer.Consume();
 
-while(true){};
+                var notificacao = JsonSerializer.Deserialize<Notificacao>(evt.Message.Value);
+
+                Console.WriteLine($"Notificação: [{notificacao!.origem!}] diz: [{notificacao!.mensagem!}]");
+
+                // Publica no SignalR
+                await _hub.InvokeAsync("Notificar", notificacao!.origem!, notificacao!.mensagem!);
+            }
+            catch (ConsumeException ex)
+            {
+                Console.WriteLine($"Erro ao consumir: {ex.Message}");
+                throw;
+            }
+        }
+    }
+    catch (OperationCanceledException)
+    {
+        Console.WriteLine($"Consumidor finalizado.");
+        throw;
+    }
+};
 
 public class Notificacao
 {
@@ -77,8 +97,24 @@ public class Notificacao
     public string? mensagem { get; set; }
 };
 
-public class KafkaInfra
+public class Dependencies
 {
-    public string? ksqlDbUrl { get; set; }
-    public string? SignalRHubUrl { get; set; }
+    public Broker? Broker { get; set; }
+    public SignalRHub? SignalRHub { get; set; }
+};
+
+public class SignalRHub
+{
+    public string? Url { get; set; }
+};
+
+public class Broker
+{
+    public string? Topic { get; set; }
+    public Consumer? Consumer { get; set; }
+};
+
+public class Consumer
+{
+    public string? BootstrapServers { get; set; }
 };

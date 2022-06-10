@@ -15,11 +15,6 @@ volumes:
   broker02-secrets:
   broker03-data:
   broker03-secrets:
-  registry-secrets:
-  connect-data:
-  connect-secrets:
-  connect-kafka-secrets:
-  ksqldb-extensions:
   nifi01-logs:
   nifi01-conf:
   nifi01-database-repository:
@@ -44,9 +39,6 @@ volumes:
   nifi03-provenance-repository:
   nifi03-state:
   nifi03-extensions:
-  nifi-registry-conf:
-  nifi-registry-flow-storage:
-  nifi-registry-database:
 
 services:
 
@@ -72,15 +64,18 @@ services:
       context: src/Web
     environment:
       ConnectionStrings__lojaConnectionString: 'server=mysql;port=3306;uid=root;pwd=root;database=loja'
-      dependencies__broker__topic: 'pedido'
-      dependencies__broker__producer__BootstrapServers: 'broker01:9092,broker02:9092,broker03:9092'
-      dependencies__redis: 'redis:6379'
+      Dependencies__Broker__Topic: 'pedido'
+      Dependencies__Broker__Producer__BootstrapServers: 'broker01:9092,broker02:9092,broker03:9092'
+      Dependencies__Redis__Url: 'redis:6379'
       WAIT_HOSTS: mysql:3306,redis:6379,broker01:9092,broker02:9092,broker03:9092
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
     ports:
       - 8888:80
     depends_on:
+      - broker01
+      - broker02
+      - broker03
       - mysql
     restart: on-failure
 
@@ -90,13 +85,16 @@ services:
     build:
       context: src/NotificacaoWorker
     environment:
-      KafkaInfra__ksqlDbUrl: 'http://ksqldb:8088'
-      KafkaInfra__SignalRHubUrl: 'http://web/notificacaoHub'
-      WAIT_HOSTS: ksqldb:8088, web:80
+      Dependencies__Broker__Topic: 'notificacao'
+      Dependencies__Broker__Consumer__BootstrapServers: 'broker01:9092,broker02:9092,broker03:9092'
+      Dependencies__SignalRHub__Url: 'http://web/notificacaoHub'
+      WAIT_HOSTS: web:80,broker01:9092,broker02:9092,broker03:9092
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
     depends_on:
-      - ksqldb
+      - broker01
+      - broker02
+      - broker03      
       - web
     restart: on-failure
 
@@ -113,7 +111,6 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 5
-      # ZOOKEEPER_SERVERS: zk:2888
     volumes:
       - zk-data:/var/lib/zookeeper/data
       - zk-logs:/var/lib/zookeeper/log
@@ -138,14 +135,14 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zk:2181/kafka
       KAFKA_ADVERTISED_HOST_NAME: broker01
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker01:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_NUM_PARTITIONS: 8
-      KAFKA_DEFAULTS_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
       KAFKA_LOG_RETENTION_HOURS: 168 # 1 week
       KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
-      KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
       WAIT_HOSTS: zk:2181
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
@@ -168,14 +165,14 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zk:2181/kafka
       KAFKA_ADVERTISED_HOST_NAME: broker02
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker02:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_NUM_PARTITIONS: 8
-      KAFKA_DEFAULTS_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
       KAFKA_LOG_RETENTION_HOURS: 168 # 1 week
       KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
-      KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
       WAIT_HOSTS: zk:2181
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
@@ -198,14 +195,14 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zk:2181/kafka
       KAFKA_ADVERTISED_HOST_NAME: broker03
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker03:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_NUM_PARTITIONS: 8
-      KAFKA_DEFAULTS_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
       KAFKA_LOG_RETENTION_HOURS: 168 # 1 week
       KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 300000 # 5 min
       KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000 # 1 min
-      KAFKA_SCHEMA_REGISTRY_URL: http://registry:8081
       WAIT_HOSTS: zk:2181
       WAIT_TIMEOUT: 3600
       WAIT_HOST_CONNECT_TIMEOUT: 60
@@ -215,211 +212,6 @@ services:
     depends_on:
       - zk
     restart: on-failure
-
-  # cmak:
-  #   container_name: poceventos_cmak
-  #   hostname: cmak
-  #   image: vimagick/cmak
-  #   ports:
-  #     - 49000:9000 # Cluster Zookeeper Hosts: "zk:2181/kafka"
-  #   environment:
-  #     ZK_HOSTS: zk:2181
-  #     KAFKA_MANAGER_AUTH_ENABLED: "false"
-  #   depends_on:
-  #     - broker01
-  #     - broker02
-  #     - broker03
-  #   healthcheck:
-  #     test: curl -f http://cmak:9000/api/health || exit 1
-  #   restart: unless-stopped
-
-  registry:
-    container_name: poceventos_registry
-    hostname: registry
-    build:
-      context: docker/registry
-    ports:
-      - 48081:8081
-    environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: broker01:9092,broker02:9092,broker03:9092
-      SCHEMA_REGISTRY_HOST_NAME: registry
-      SCHEMA_REGISTRY_LISTENERS: http://registry:8081
-      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,OPTIONS"
-      SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
-      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092
-      WAIT_TIMEOUT: 3600
-      WAIT_HOST_CONNECT_TIMEOUT: 60
-    volumes:
-      - registry-secrets:/etc/schema-registry/secrets
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-    restart: on-failure
-
-  # registry-ui:
-  #   container_name: poceventos_registry-ui
-  #   hostname: registry-ui
-  #   image: landoop/schema-registry-ui:latest
-  #   environment:
-  #     SCHEMAREGISTRY_URL: http://registry:8081 # ui supports just one registry
-  #     PROXY: "true"
-  #   ports:
-  #     - 48001:8000
-  #   depends_on:
-  #     - registry
-  #   restart: unless-stopped
-
-  restproxy:
-    container_name: poceventos_restproxy
-    hostname: restproxy
-    build:
-      context: docker/restproxy
-    ports:
-      - 48082:8082
-    environment:
-      KAFKA_REST_ID: 1
-      KAFKA_REST_BOOTSTRAP_SERVERS: broker01:9092,broker02:9092,broker03:9092
-      KAFKA_REST_LISTENERS: http://0.0.0.0:8082
-      KAFKA_REST_HOST_NAME: restproxy
-      KAFKA_REST_SCHEMA_REGISTRY_URL: http://registry:8081
-      KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
-      KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
-      KAFKA_REST_ACKS: all
-      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081
-      WAIT_TIMEOUT: 3600
-      WAIT_HOST_CONNECT_TIMEOUT: 60
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-      - registry
-    restart: on-failure
-
-  # kafka-topics-ui:
-  #   container_name: poceventos_kafka-topics-ui
-  #   hostname: kafka-topics-ui
-  #   image: landoop/kafka-topics-ui:latest
-  #   environment:
-  #     KAFKA_REST_PROXY_URL: http://restproxy:8082
-  #     PROXY: "true"
-  #     MAX_BYTES: 50000 # 50KB max fetch amount per topic
-  #     RECORD_POLL_TIMEOUT: 5000 # ms
-  #     DEBUG_LOGS_ENABLED: "true"
-  #     LAZY_LOAD_TOPIC_META: "false"
-  #   ports:
-  #     - 48000:8000
-  #   depends_on:
-  #     - broker01
-  #     - broker02
-  #     - broker03
-  #     - restproxy
-  #   restart: unless-stopped
-
-  connect:
-    container_name: poceventos_connect
-    hostname: connect
-    build:
-      context: docker/connect
-    ports:
-      - 48083:8083
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: broker01:9092,broker02:9092,broker03:9092
-      CONNECT_REST_PORT: 8083
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
-      CONNECT_CLIENT_ID: connect
-      CONNECT_GROUP_ID: connect-group
-      CONNECT_SCHEMA_REGISTRY_URL: http://registry:8081
-      CONNECT_CONFIG_STORAGE_TOPIC: _connect-config
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
-      CONNECT_CONFIG_STORAGE_MIN_INSYNC_REPLICAS: 2
-      CONNECT_OFFSET_STORAGE_TOPIC: _connect-offset
-      CONNECT_OFFSET_STORAGE_PARTITIONS: 8
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
-      CONNECT_OFFSET_STORAGE_MIN_INSYNC_REPLICAS: 2
-      CONNECT_STATUS_STORAGE_TOPIC: _connect-status
-      CONNECT_STATUS_STORAGE_PARTITIONS: 8
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
-      CONNECT_STATUS_STORAGE_MIN_INSYNC_REPLICAS: 2
-      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://registry:8081
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://registry:8081
-      CONNECT_ACCESS_CONTROL_ALLOW_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
-      CONNECT_ACCESS_CONTROL_ALLOW_ORIGIN: "*"
-      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
-      KAFKA_REST_ACKS: all
-      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081
-      WAIT_TIMEOUT: 3600
-      WAIT_HOST_CONNECT_TIMEOUT: 60
-    volumes:
-      - connect-data:/var/lib/kafka/data
-      - connect-secrets:/etc/kafka/secrets
-      - connect-kafka-secrets:/etc/kafka-connect/secrets
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-      - registry
-    restart: on-failure
-
-  # connect-ui:
-  #   container_name: poceventos_connect-ui
-  #   hostname: connect-ui
-  #   image: landoop/kafka-connect-ui:latest
-  #   ports:
-  #     - 48100:8000
-  #   environment:
-  #     CONNECT_URL: http://connect:8083;connect-group-connect
-  #     PROXY: "true"
-  #     KAFKA_TOPICS_UI: "http://localhost:4800"
-  #     KAFKA_TOPICS_UI_ENABLED: "true"
-  #   depends_on:
-  #     - connect
-  #   restart: unless-stopped
-
-  ksqldb:
-    container_name: poceventos_ksqldb
-    hostname: ksqldb
-    build:
-      context: docker/ksqldb    
-    ports:
-      - 48088:8088
-      - 48283:8083
-    environment:
-      KSQL_KSQL_SERVICE_ID: service01
-      KSQL_LISTENERS: http://0.0.0.0:8088
-      KSQL_BOOTSTRAP_SERVERS: broker01:9092,broker02:9092,broker03:9092
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://registry:8081
-      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
-      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
-      KSQL_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
-      KSQL_KSQL_HEARTBEAT_ENABLE: "true" # /clusterStatus
-      KSQL_KSQL_EXTENSION_DIR: /opt/confluent/ksql/extensions
-      KSQL_KSQL_CONNECT_URL: http://connect:8083
-      WAIT_HOSTS: broker01:9092, broker02:9092, broker03:9092, registry:8081, connect:8083
-      WAIT_TIMEOUT: 3600
-      WAIT_HOST_CONNECT_TIMEOUT: 60
-    volumes:
-      - ksqldb-extensions:/opt/confluent/ksql/extensions
-    depends_on:
-      - broker01
-      - broker02
-      - broker03
-      - registry
-      - connect
-    restart: on-failure
-
-  # ksqldb-cli:
-  #   container_name: poceventos_ksqldb-cli
-  #   hostname: ksqldb-cli
-  #   image: confluentinc/cp-ksqldb-cli:6.2.4
-  #   # docker-compose exec ksqldb-cli ksql http://ksqldb:8088
-  #   depends_on:
-  #     - ksqldb
-  #   entrypoint: /bin/sh
-  #   tty: true
-  #   restart: unless-stopped
 
   nifi01:
     container_name: poceventos_nifi01
@@ -449,6 +241,11 @@ services:
       - nifi01-provenance-repository:/opt/nifi/nifi-current/provenance_repository
       - nifi01-state:/opt/nifi/nifi-current/state
       - nifi01-extensions:/opt/nifi/nifi-current/extensions
+    depends_on:
+      - zk
+      - broker01
+      - broker02
+      - broker03
     restart: always
 
   nifi02:
@@ -479,6 +276,11 @@ services:
       - nifi02-provenance-repository:/opt/nifi/nifi-current/provenance_repository
       - nifi02-state:/opt/nifi/nifi-current/state
       - nifi02-extensions:/opt/nifi/nifi-current/extensions
+    depends_on:
+      - zk
+      - broker01
+      - broker02
+      - broker03
     restart: always
 
   nifi03:
@@ -509,24 +311,12 @@ services:
       - nifi03-provenance-repository:/opt/nifi/nifi-current/provenance_repository
       - nifi03-state:/opt/nifi/nifi-current/state
       - nifi03-extensions:/opt/nifi/nifi-current/extensions
+    depends_on:
+      - zk
+      - broker01
+      - broker02
+      - broker03
     restart: always
-
-  # nifi-registry:
-  #   container_name: poceventos_nifi-registry
-  #   hostname: nifi-registry
-  #   image: apache/nifi-registry:latest
-  #   ports:
-  #     - 48080:18080
-  #   environment:
-  #     NIFI_REGISTRY_WEB_HTTP_PORT: 18080
-  #   #   NIFI_REGISTRY_DB_DIR: /opt/nifi-registry/nifi-registry-current/database
-  #   #   NIFI_REGISTRY_FLOW_PROVIDER: file
-  #   #   NIFI_REGISTRY_FLOW_STORAGE_DIR: /opt/nifi-registry/nifi-registry-current/flow_storage
-  #   # volumes:
-  #   #   - nifi-registry-conf:/opt/nifi-registry/nifi-registry-current/conf
-  #   #   - nifi-registry-flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
-  #   #   - nifi-registry-database:/opt/nifi-registry/nifi-registry-current/database
-  #   restart: always
 
   redis:
     container_name: poceventos_redis

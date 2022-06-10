@@ -31,13 +31,13 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(opt =>
 });
 
 string kafkaServer = builder.Configuration
-    .GetSection("dependencies:broker:producer").GetValue<string>("BootstrapServers");
+    .GetSection("Dependencies:Broker:Producer").GetValue<string>("BootstrapServers");
 
 string pedidoTopic = builder.Configuration
-    .GetSection("dependencies:broker").GetValue<string>("topic");
+    .GetSection("Dependencies:Broker").GetValue<string>("Topic");
 
 string redisServer = builder.Configuration
-    .GetSection("dependencies").GetValue<string>("redis");
+    .GetSection("Dependencies:Redis").GetValue<string>("Url");
 
 builder.Services.AddSingleton<KafkaClientHandle>();
 builder.Services.AddSingleton<KafkaDependentProducer<long, string>>();

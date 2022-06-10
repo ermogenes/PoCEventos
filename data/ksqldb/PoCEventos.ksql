@@ -1,8 +1,0 @@
-CREATE STREAM pedidos (produtoId VARCHAR, quantidade INTEGER)
-  WITH (kafka_topic='pedido', key_format='kafka', value_format='json', partitions=8, replicas=3);
-
-CREATE STREAM notificacoes (origem VARCHAR, mensagem VARCHAR)
-  WITH (kafka_topic='notificacao', key_format='kafka', value_format='json', partitions=8, replicas=3);
-
-CREATE STREAM cotacoes (cotacaousd DECIMAL(10,4), timestamp TIMESTAMP)
-  WITH (kafka_topic='cotacao', key_format='kafka', value_format='json', partitions=8, replicas=3);

@@ -1,6 +1,6 @@
 {
-    "@PRODUTOID": "produtoid",
-    "@QUANTIDADE": "quantidade",
+    "@produtoId": "produto_id",
+    "@quantidade": "quantidade",
     "@precobrl": "precobrl",
     "@cotacaousd": "cotacaousd",
     "@taxabrl": "taxabrl",

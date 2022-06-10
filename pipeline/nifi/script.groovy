@@ -2,7 +2,7 @@ import org.apache.nifi.serialization.record.RecordField;
 import org.apache.nifi.serialization.record.RecordFieldType;
 
 double precoBRL = record.getAsDouble('precobrl')
-int quantidade = record.getAsInt('QUANTIDADE')
+int quantidade = record.getAsInt('quantidade')
 double cotacaoUSD = Double.parseDouble(attributes['cotacao'])
 
 double ttParcialBRL = precoBRL * quantidade
